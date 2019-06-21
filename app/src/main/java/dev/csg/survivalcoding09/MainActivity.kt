@@ -121,7 +121,8 @@ class MainActivity : AppCompatActivity() {
 
         // adapter 에 뿌려줄 items
         val items = arrayListOf<Photo>()
-        if (cursor != null) {
+        cursor?.let {
+
             while (cursor.moveToNext()) {
                 val uri =
                     cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA))
@@ -130,11 +131,11 @@ class MainActivity : AppCompatActivity() {
             }
             cursor.close()
         }
-        val adapter = PhotoAdapter(items, clickListener = {
+        val adapter = PhotoAdapter() // PhotoAdapter adapter = new PhotoAdapter();
 
-        })
-//        adapter.items = items // 안해줘도 나오는 이유?
-//        adapter.notifyDataSetChanged()
+
+        adapter.items = items
+        adapter.notifyDataSetChanged()
         view_pager.adapter = adapter
 
         timer(period = 3000) {
@@ -153,22 +154,15 @@ class MainActivity : AppCompatActivity() {
 
 data class Photo(val uri: String)
 
-class PhotoAdapter(
-    var items: List<Photo>,
-    private val clickListener: (photo: Photo) -> Unit
-) :
-    RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder>() {
+class PhotoAdapter(): RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder>() {
+    var items = arrayListOf<Photo>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_photo, parent, false)
 
-        val viewHolder = PhotoViewHolder(ItemPhotoBinding.bind(view))
-
-        view.setOnClickListener {
-            clickListener.invoke(items[viewHolder.adapterPosition])
-        }
-        return viewHolder
+//        val binding = ItemPhotoBinding.bind(view)
+        return PhotoViewHolder(ItemPhotoBinding.bind(view))
     }
 
     override fun getItemCount() = items.size
